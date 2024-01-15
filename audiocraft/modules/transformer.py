@@ -175,6 +175,9 @@ class StreamingMultiheadAttention(StreamingModule):
         if past_context is not None:
             assert causal
 
+        if os.environ.get("IGNORE_MEMORY_EFFICIENT"):
+            memory_efficient = False
+
         self.embed_dim = embed_dim
         self.causal = causal
         self.past_context = past_context

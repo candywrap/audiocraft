@@ -136,7 +136,6 @@ def load_lm_model_magnet(file_or_url_or_id: tp.Union[Path, str], compression_mod
 
     # MAGNeT models v1 support only xformers backend.
     from audiocraft.modules.transformer import set_efficient_attention_backend
-    print(f"cfg={cfg}")
     inefficient = os.environ.get("IGNORE_MEMORY_EFFICIENT")
     if not inefficient:
       if cfg.transformer_lm.memory_efficient:
