@@ -13,6 +13,7 @@ See `StreamingTransformer` for more information.
 Unlike regular PyTorch Transformer, we make the hard choice that batches are first.
 """
 
+import os
 import typing as tp
 
 from einops import rearrange
@@ -20,7 +21,9 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint as torch_checkpoint
-from xformers import ops
+
+if not os.environ.get("IGNORE_MEMORY_EFFICIENT"):
+  from xformers import ops
 
 from .rope import RotaryEmbedding
 from .streaming import StreamingModule
