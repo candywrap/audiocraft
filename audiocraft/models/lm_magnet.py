@@ -9,6 +9,7 @@ import math
 import typing as tp
 import torch
 import numpy as np
+import os
 
 from ..utils import utils
 from ..modules.conditioners import (
@@ -81,15 +82,17 @@ class MagnetLMModel(LMModel):
             # parallel - non-causal - with restricted subcodes context
             sa_mask = self.restricted_context_attn_mask(seq_len, device=device, dtype=dtype)
 
-        if sa_mask is not None:
-            # align8 to enable memory efficient attention
-            MEMORY_EFFICIENT_ATTN_ALIGN_FACTOR = 8
-            seq_len_aligned = \
-                int(np.ceil(seq_len / MEMORY_EFFICIENT_ATTN_ALIGN_FACTOR)) * MEMORY_EFFICIENT_ATTN_ALIGN_FACTOR
+        inefficient = os.environ.get("IGNORE_MEMORY_EFFICIENT")
+        if not inefficient:
+          if sa_mask is not None:
+              # align8 to enable memory efficient attention
+              MEMORY_EFFICIENT_ATTN_ALIGN_FACTOR = 8
+              seq_len_aligned = \
+                  int(np.ceil(seq_len / MEMORY_EFFICIENT_ATTN_ALIGN_FACTOR)) * MEMORY_EFFICIENT_ATTN_ALIGN_FACTOR
 
-            sa_mask_aligned = torch.zeros((seq_len_aligned, seq_len_aligned), device=device, dtype=dtype)
-            sa_mask_aligned[:seq_len, :seq_len] = sa_mask
-            sa_mask = sa_mask_aligned
+              sa_mask_aligned = torch.zeros((seq_len_aligned, seq_len_aligned), device=device, dtype=dtype)
+              sa_mask_aligned[:seq_len, :seq_len] = sa_mask
+              sa_mask = sa_mask_aligned
 
         return sa_mask
 
